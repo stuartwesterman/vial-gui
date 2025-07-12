@@ -2,10 +2,12 @@
 import sys
 import os
 
-from PyQt5 import QtCore
-from PyQt5.QtCore import pyqtSignal, QProcess
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QApplication
-from fbs_runtime.application_context import is_frozen
+from PyQt6 import QtCore
+from PyQt6.QtCore import pyqtSignal, QProcess
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QApplication
+# Replacement for fbs is_frozen functionality
+def is_frozen():
+    return getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS')
 
 from keycodes.keycodes import Keycode
 from macro.macro_key import KeyUp, KeyDown
@@ -23,7 +25,7 @@ class LinuxRecorder(QWidget):
         self.process = QProcess()
         self.process.readyReadStandardOutput.connect(self.on_output)
 
-        self.setWindowFlags(self.windowFlags() | QtCore.Qt.WindowStaysOnTopHint | QtCore.Qt.X11BypassWindowManagerHint)
+        self.setWindowFlags(self.windowFlags() | QtCore.Qt.WindowType.WindowStaysOnTopHint | QtCore.Qt.WindowType.X11BypassWindowManagerHint)
 
         layout = QVBoxLayout()
         btn = QPushButton(tr("MacroRecorder", "Stop recording"))
@@ -35,7 +37,7 @@ class LinuxRecorder(QWidget):
     def start(self):
         self.show()
 
-        center = QApplication.desktop().availableGeometry(self).center()
+        center = QApplication.primaryScreen().availableGeometry().center()
         self.move(round(center.x() - self.width() * 0.5), 0)
 
         args = [sys.executable]

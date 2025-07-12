@@ -8,11 +8,10 @@ if ssl.get_default_verify_paths().cafile is None:
 
 import traceback
 
-from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtCore import pyqtSignal
+from PyQt6 import QtWidgets, QtCore
+from PyQt6.QtCore import pyqtSignal
 
-from fbs_runtime.application_context import cached_property
-from fbs_runtime.application_context.PyQt5 import ApplicationContext
+import functools
 
 import sys
 
@@ -27,7 +26,7 @@ def show_exception_box(log_msg):
     if QtWidgets.QApplication.instance() is not None:
         errorbox = QtWidgets.QMessageBox()
         errorbox.setText(log_msg)
-        errorbox.exec_()
+        errorbox.exec()
 
 
 class UncaughtHook(QtCore.QObject):
@@ -55,31 +54,52 @@ class UncaughtHook(QtCore.QObject):
             self._exception_caught.emit(log_msg)
         sys._excepthook(exc_type, exc_value, exc_traceback)
 
-class VialApplicationContext(ApplicationContext):
-    @cached_property
+class VialApplicationContext:
+    def __init__(self):
+        self.build_settings = {
+            "app_name": "Vial",
+            "version": "0.7.3"
+        }
+        self._app = None
+    
+    @property
     def app(self):
-        # Override the app definition in order to set WM_CLASS.
-        result = QtWidgets.QApplication(sys.argv)
-        result.setApplicationName(self.build_settings["app_name"])
-        result.setOrganizationDomain("vial.today")
+        if self._app is None:
+            # Override the app definition in order to set WM_CLASS.
+            self._app = QtWidgets.QApplication(sys.argv)
+            self._app.setApplicationName(self.build_settings["app_name"])
+            self._app.setOrganizationDomain("vial.today")
+            self._app.setApplicationVersion(self.build_settings["version"])
+        return self._app
+    
+    def get_resource(self, resource_path):
+        """Get resource file path - replacement for fbs functionality"""
+        import os
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        resource_dir = os.path.join(script_dir, "..", "resources", "base")
+        return os.path.join(resource_dir, resource_path)
 
-        #TODO: Qt sets applicationVersion on non-Linux platforms if the exe/pkg metadata is correctly configured.
-        # https://doc.qt.io/qt-5/qcoreapplication.html#applicationVersion-prop
-        # Verify it is, and only set manually on Linux.
-        #if sys.platform.startswith("linux"):
-        result.setApplicationVersion(self.build_settings["version"])
-        return result
-
-if __name__ == '__main__':
+def main():
     if len(sys.argv) == 2 and sys.argv[1] == "--linux-recorder":
         from linux_keystroke_recorder import linux_keystroke_recorder
 
         linux_keystroke_recorder()
     else:
         appctxt = VialApplicationContext()       # 1. Instantiate ApplicationContext
+        
+        # Force QApplication creation by accessing the app property
+        _ = appctxt.app
+        
+        # Initialize themes after QApplication is created
+        from themes import initialize_palettes
+        initialize_palettes()
+        
         init_logger()
         qt_exception_hook = UncaughtHook()
         window = MainWindow(appctxt)
         window.show()
-        exit_code = appctxt.app.exec_()      # 2. Invoke appctxt.app.exec_()
+        exit_code = appctxt.app.exec()      # 2. Invoke appctxt.app.exec()
         sys.exit(exit_code)
+
+if __name__ == '__main__':
+    main()

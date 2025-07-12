@@ -1,0 +1,63 @@
+diff --git a/src/main/python/keymap/dvorak.py b/src/main/python/keymap/dvorak.py
+new file mode 100644
+index 0000000..c7f4a92
+--- /dev/null
++++ b/src/main/python/keymap/dvorak.py
+@@ -0,0 +1,37 @@
++# coding: utf-8
++
++keymap = {
++    "KC_Q": "'",
++    "KC_W": ",",
++    "KC_E": ".",
++    "KC_R": "P",
++    "KC_T": "Y",
++    "KC_Y": "F",
++    "KC_U": "G",
++    "KC_I": "C",
++    "KC_O": "R",
++    "KC_P": "L",
++    "KC_LBRC": "/",
++    "KC_RBRC": "=",
++    "KC_A": "A",
++    "KC_S": "O",
++    "KC_D": "E",
++    "KC_F": "U",
++    "KC_G": "I",
++    "KC_H": "D",
++    "KC_J": "H",
++    "KC_K": "T",
++    "KC_L": "N",
++    "KC_SCOLON": "S",
++    "KC_QUOT": "-",
++    "KC_Z": ";",
++    "KC_X": "Q",
++    "KC_C": "J",
++    "KC_V": "K",
++    "KC_B": "X",
++    "KC_N": "B",
++    "KC_M": "M",
++    "KC_COMM": "W",
++    "KC_DOT": "V",
++    "KC_SLSH": "Z",
++}
+\ No newline at end of file
+diff --git a/src/main/python/keymaps.py b/src/main/python/keymaps.py
+index 02747a1..2b8b962 100644
+--- a/src/main/python/keymaps.py
++++ b/src/main/python/keymaps.py
+@@ -1,5 +1,5 @@
+ from keycodes.keycodes import Keycode
+-from keymap import brazilian, canadian_csa, colemak, danish, eurkey, french, german, hebrew, hungarian, italian, japanese, latam, norwegian, portuguese, russian, slovak, spanish, swedish, swedish_swerty, swiss, turkish, ukrainian, croatian, us_international
++from keymap import brazilian, canadian_csa, colemak, danish, dvorak, eurkey, french, german, hebrew, hungarian, italian, japanese, latam, norwegian, portuguese, russian, slovak, spanish, swedish, swedish_swerty, swiss, turkish, ukrainian, croatian, us_international
+ 
+ KEYMAPS = [
+     ("QWERTY", dict()),
+@@ -8,6 +8,7 @@ KEYMAPS = [
+     ("Colemak", colemak.keymap),
+     ("Croatian (QWERTZ)", croatian.keymap),
+     ("Danish (QWERTY)", danish.keymap),
++    ("Dvorak", dvorak.keymap),
+     ("EurKey (QWERTY)", eurkey.keymap),
+     ("French (AZERTY)", french.keymap),
+     ("French (MAC)", french.keymap_mac),
